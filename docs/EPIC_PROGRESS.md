@@ -7,7 +7,7 @@
 | Épica | Estado | Tareas | Completadas | Progreso |
 |-------|--------|--------|-------------|----------|
 | ÉPICA 0 | ✅ Completada | 3 | 3 | 100% |
-| ÉPICA 1 | ⏳ En Progreso | 2 | 0 | 0% |
+| ÉPICA 1 | ✅ Completada | 2 | 2 | 100% |
 | ÉPICA 2 | ⏹️ Pendiente | 5 | 0 | 0% |
 | ÉPICA 3 | ⏹️ Pendiente | 7 | 0 | 0% |
 | ÉPICA 4 | ⏹️ Pendiente | 4 | 0 | 0% |
@@ -61,20 +61,69 @@
 
 ---
 
-## ⏳ ÉPICA 1: Infraestructura Docker (EN PROGRESO)
+## ✅ ÉPICA 1: Infraestructura Docker (COMPLETADA)
 
 **Branch:** `feature/epic-1-infrastructure`  
-**Fecha inicio:** 2026-01-13
+**Fecha:** 2026-01-13  
+**Tiempo invertido:** ~15 minutos
+
+### Tareas Completadas:
+
+#### [EPIC-1-T1] ✅ Implementar Dockerfile.populate
+- **Commit:** `86f52d2`
+- **Archivo:** `api/Dockerfile.populate`
+- **Implementación:**
+  - Base image: python:3.8.13
+  - PYTHONPATH configurado
+  - Instala dependencias desde requirements.txt
+  - Copia código fuente
+  - CMD ejecuta populate_db.py
+- **Validación:** Build exitoso ✅
+
+#### [EPIC-1-T2] ✅ Validar configuración docker-compose
+- **Commit:** `fa2f073`
+- **Archivos:** `docker-compose.yml`, `api/docker-compose.yml`
+- **Validaciones:**
+  - ✅ YAML válido sin errores
+  - ✅ 5 servicios: redis, model, api, ui, db
+  - ✅ Dependencias correctas
+  - ✅ Puertos: 8000, 9090, 5432
+  - ✅ Red shared_network en todos los servicios
+- **Comando:** `docker-compose config` exitoso ✅
+
+### Testing Manual:
+- ✅ Test 1: Dockerfile.populate construye correctamente
+- ✅ Test 2: docker-compose config sin errores
+- ✅ Test 3: Todos los servicios con shared_network
+
+### Notas:
+- Dockerfile.populate sigue mismo patrón que api/Dockerfile
+- Configuración docker-compose validada y lista para uso
+- Red externa shared_network debe existir antes de docker-compose up
+
+---
+
+## ⏳ ÉPICA 2: Servicio ML (EN PROGRESO)
+
+**Branch:** `feature/epic-2-ml-service`  
+**Fecha inicio:** Pendiente
 
 ### Tareas:
 
-#### [EPIC-1-T1] ⏳ Implementar Dockerfile.populate
+#### [EPIC-2-T1] ⏳ Conectar Redis en ml_service.py
 - **Estado:** Pendiente
-- **Archivo:** `api/Dockerfile.populate`
 
-#### [EPIC-1-T2] ⏳ Validar configuración docker-compose
+#### [EPIC-2-T2] ⏳ Cargar modelo ResNet50
 - **Estado:** Pendiente
-- **Archivos:** `docker-compose.yml`, `api/docker-compose.yml`
+
+#### [EPIC-2-T3] ⏳ Implementar función predict()
+- **Estado:** Pendiente
+
+#### [EPIC-2-T4] ⏳ Implementar función classify_process()
+- **Estado:** Pendiente
+
+#### [EPIC-2-T5] ⏳ Ejecutar tests del modelo
+- **Estado:** Pendiente
 
 ---
 
@@ -87,4 +136,4 @@
 
 ---
 
-**Progreso Total:** 3/40 tareas (7.5%)
+**Progreso Total:** 5/40 tareas (12.5%)
