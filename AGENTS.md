@@ -213,16 +213,149 @@ api/app/
 - [ ] Database queries optimized
 - [ ] Dependencies properly injected
 
-### Commit Message Conventions
-- **Format**: `<type>(<scope>): <description>`
-- **Types**:
-  - `feat`: New feature
-  - `fix`: Bug fix
-  - `docs`: Documentation
-  - `style`: Code style changes
-  - `refactor`: Code refactoring
-  - `test`: Test additions/modifications
-  - `chore`: Maintenance tasks
+### Commit Message Conventions (Conventional Commits)
+
+We follow **Conventional Commits 1.0.0** standard with Angular convention for clear, semantic commit history.
+
+#### Format
+```
+<type>(<scope>): <subject>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+#### Types
+- **feat**: New feature for the user (not a new feature for build script)
+- **fix**: Bug fix for the user (not a fix to a build script)
+- **docs**: Documentation only changes
+- **style**: Code style changes (formatting, missing semicolons, etc; no code change)
+- **refactor**: Code change that neither fixes a bug nor adds a feature
+- **perf**: Performance improvements
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes to build system or external dependencies
+- **ci**: Changes to CI configuration files and scripts
+- **chore**: Other changes that don't modify src or test files
+- **revert**: Reverts a previous commit
+
+#### Scopes (for this project)
+- **api**: FastAPI backend service
+- **model**: ML model service
+- **ui**: Streamlit UI service
+- **db**: Database related
+- **docker**: Docker/infrastructure changes
+- **auth**: Authentication/authorization
+- **tests**: Testing infrastructure
+- **docs**: Documentation changes
+- **deps**: Dependency updates
+
+#### Subject Guidelines
+- Use imperative, present tense: "add" not "added" nor "adds"
+- Don't capitalize first letter
+- No period (.) at the end
+- Maximum 72 characters
+- Be descriptive but concise
+
+#### Body Guidelines (optional)
+- Explain **why** not **what** (the diff shows what changed)
+- Wrap at 72 characters
+- Separate from subject with blank line
+- Use bullet points for multiple changes
+
+#### Footer Guidelines (optional)
+- Reference issues/PRs: `Fixes #123`, `Closes #456`, `Refs #789`
+- Breaking changes: `BREAKING CHANGE: <description>`
+
+#### Examples
+
+**Simple feature:**
+```
+feat(api): add user profile endpoint
+
+- Implement GET /user/profile
+- Add authentication middleware
+- Include validation for user data
+
+Closes #42
+```
+
+**Bug fix:**
+```
+fix(model): resolve memory leak in image preprocessing
+
+The image buffers weren't being released after processing.
+Added explicit cleanup in the finally block.
+
+Fixes #156
+```
+
+**Documentation:**
+```
+docs(readme): update installation instructions for Apple Silicon
+
+Added troubleshooting section for M1/M2/M3 chip compatibility.
+```
+
+**Breaking change:**
+```
+feat(api): change authentication to JWT Bearer tokens
+
+BREAKING CHANGE: Old session-based auth is no longer supported.
+Clients must now use Authorization: Bearer <token> header.
+
+Migration guide added to docs/auth-migration.md
+```
+
+**Multiple scopes:**
+```
+refactor(api,model): standardize error response format
+
+- API now returns consistent JSON error structure
+- Model service updated to match new format
+- Updated integration tests
+
+Refs #234
+```
+
+#### Sprint-Specific Convention
+
+For epic-based development, add epic tracking in the subject:
+
+```
+feat(api): [EPIC-2] implement ML prediction endpoint
+fix(docker): [EPIC-1] resolve h5py compilation on ARM64
+docs: [EPIC-0] add project setup documentation
+```
+
+#### Quick Reference
+
+**Bad commits:**
+```
+✗ Fixed bug
+✗ Update code
+✗ WIP
+✗ asdfasdf
+✗ More changes
+```
+
+**Good commits:**
+```
+✓ fix(api): handle null user in authentication
+✓ feat(model): add ResNet50 image classification
+✓ docs(api): document prediction endpoint parameters
+✓ refactor(ui): extract image upload component
+✓ test(model): add unit tests for preprocessing
+```
+
+#### Tools
+
+Use the `/commit` command for guided commit creation:
+```bash
+/commit
+```
+
+This will analyze staged changes and generate an appropriate commit message.
 
 ### Development Workflow
 1. **Setup**: Copy `.env.original` to `.env`
@@ -284,3 +417,147 @@ database.execute("SELECT * FROM users WHERE id = ?", id)
 - **Message Queue**: Redis
 
 This document should be updated as the codebase evolves and new patterns emerge.
+
+---
+
+## Custom Commands for OpenCode
+
+### /commit - Smart Commit Assistant
+
+**Purpose:** Analyzes staged changes and generates a semantic commit message following Conventional Commits standard.
+
+**Usage:**
+```bash
+/commit [options]
+```
+
+**Options:**
+- `--epic <N>` - Add EPIC tracker (e.g., `--epic 2` → `[EPIC-2]`)
+- `--breaking` - Mark as breaking change
+- `--scope <scope>` - Override auto-detected scope
+
+**Behavior:**
+
+1. **Analyze Changes:**
+   - Run `git status` and `git diff --staged`
+   - Identify modified files and their locations
+   - Auto-detect scope based on changed files:
+     - Files in `api/` → scope: `api`
+     - Files in `model/` → scope: `model`
+     - Files in `ui/` → scope: `ui`
+     - Files in `docs/` → scope: `docs`
+     - `docker-compose.yml`, `Dockerfile*` → scope: `docker`
+     - Multiple directories → use primary or `multi`
+
+2. **Determine Type:**
+   - New files → `feat`
+   - Bug fixes (check diff for "fix", "bug", "error") → `fix`
+   - Test files → `test`
+   - Documentation → `docs`
+   - Requirements.txt changes → `deps` or `fix`
+   - Refactoring (no functional change) → `refactor`
+
+3. **Generate Subject:**
+   - Concise, imperative mood
+   - Max 72 chars (or 60 if epic tag included)
+   - Lowercase, no period
+   - Examples:
+     - `feat(api): add user authentication endpoint`
+     - `fix(docker): resolve h5py compilation on ARM64`
+     - `test(model): add unit tests for image preprocessing`
+
+4. **Generate Body:**
+   - List key changes as bullet points
+   - Explain WHY if not obvious from diff
+   - Include affected files if significant
+   - Add warnings or migration notes if needed
+
+5. **Add Footer:**
+   - Epic reference: `Refs: EPIC-X-TX` (if provided)
+   - Issue references: `Fixes #123` (if mentioned in branch name)
+   - Breaking change notice if `--breaking` flag used
+
+6. **Preview & Confirm:**
+   - Show generated commit message
+   - Ask for confirmation or allow editing
+   - Commit with the generated/edited message
+
+**Examples:**
+
+```bash
+# Basic usage (auto-detect everything)
+$ /commit
+
+📝 Staged changes detected:
+   - model/requirements.txt (modified)
+   - model/ml_service.py (modified)
+
+📋 Generated commit message:
+┌─────────────────────────────────────────────
+│ fix(model): resolve h5py compilation on ARM64
+│ 
+│ - Add h5py==3.8.0 before tensorflow to use pre-compiled wheel
+│ - Prevents HDF5 compilation error on Apple Silicon
+│ - Update ml_service imports for compatibility
+│ 
+│ Fixes build issues on M1/M2/M3 chips.
+└─────────────────────────────────────────────
+
+✓ Commit this message? (y/n/edit)
+```
+
+```bash
+# With EPIC tracker
+$ /commit --epic 2
+
+📋 Generated commit message:
+┌─────────────────────────────────────────────
+│ feat(model): [EPIC-2] implement ResNet50 prediction
+│ 
+│ - Load ResNet50 model with ImageNet weights
+│ - Add image preprocessing pipeline
+│ - Implement predict() function
+│ 
+│ Refs: EPIC-2-T2
+└─────────────────────────────────────────────
+```
+
+```bash
+# Breaking change
+$ /commit --breaking
+
+📋 Generated commit message:
+┌─────────────────────────────────────────────
+│ feat(api): change authentication to JWT tokens
+│ 
+│ - Replace session-based auth with JWT Bearer tokens
+│ - Update all endpoints to use Authorization header
+│ - Add token refresh endpoint
+│ 
+│ BREAKING CHANGE: Old session-based authentication
+│ is no longer supported. Clients must update to use
+│ JWT Bearer tokens in Authorization header.
+│ 
+│ Migration guide: docs/auth-migration.md
+└─────────────────────────────────────────────
+```
+
+**Implementation Notes:**
+
+The `/commit` command should:
+1. Check if there are staged changes (`git diff --staged`)
+2. If no staged changes, offer to stage all modified files
+3. Parse file paths to determine scope
+4. Analyze diff content for keywords (feat/fix/test/docs)
+5. Generate semantic commit following Conventional Commits
+6. Show preview with syntax highlighting
+7. Allow interactive editing before committing
+8. Run `git commit -m "<message>"`
+
+**Error Handling:**
+- No staged changes: Suggest `git add` or exit
+- Conflicts: Warn and show `git status`
+- Empty message: Re-prompt for input
+- Git errors: Display error and suggest resolution
+
+This command helps maintain consistent, high-quality commit messages across the team.

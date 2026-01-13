@@ -30,6 +30,27 @@
    - Comandos de referencia rápida
    - Checklist visual
 
+### 📝 Git y Commits
+5. **[COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)** - Convención de Commits
+   - Conventional Commits specification
+   - Tipos, scopes y ejemplos
+   - Guía del comando `/commit`
+   - Mejores prácticas y errores comunes
+
+### 📈 Progreso
+6. **[EPIC_PROGRESS.md](EPIC_PROGRESS.md)** - Seguimiento de Épicas
+   - Estado actual de cada épica
+   - Tareas completadas y pendientes
+   - Commits relacionados
+   - Notas y correcciones
+
+### 🔧 Compatibilidad
+7. **[COMPATIBILITY_NOTES.md](COMPATIBILITY_NOTES.md)** - Notas de Compatibilidad
+   - Issues con Apple Silicon (ARM64)
+   - Soluciones para Python 3.8
+   - Troubleshooting de dependencias
+   - Configuraciones específicas de plataforma
+
 ---
 
 ## 📖 Otros Documentos Importantes

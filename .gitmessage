@@ -1,20 +1,34 @@
-# [EPIC-X-TX] Título breve del cambio (max 50 caracteres)
+# <type>(<scope>): <subject> [EPIC-X-TX]
 #
-# Descripción detallada del cambio (opcional):
-# - Qué se cambió y por qué
-# - Archivos principales modificados
-# - Consideraciones especiales
+# Example: feat(api): add user authentication endpoint [EPIC-3-T2]
 #
-# Ejemplos:
-# [EPIC-0-T1] Crear red Docker shared_network
-# [EPIC-2-T3] Implementar función predict() con ResNet50
-# [EPIC-3-T5] Implementar endpoint POST /model/predict
+# Body (optional - explain WHY, not WHAT):
+# - Key change 1
+# - Key change 2
+# - Why this change was needed
 #
-# Formato:
-# - Primera línea: [EPIC-N-TM] Descripción breve
-# - Línea en blanco
-# - Descripción extendida (opcional)
-# - Línea en blanco
-# - Refs: EPIC-N-TM (referencia a la tarea)
-#
+# Footer (optional):
 # Refs: EPIC-X-TX
+# Fixes #123
+# BREAKING CHANGE: description of breaking change
+#
+# Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore
+# Scopes: api, model, ui, docker, db, auth, tests, docs, deps
+#
+# Guidelines:
+# - Use imperative mood: "add" not "added" or "adds"
+# - Subject: lowercase, no period, max 72 chars (50 recommended)
+# - Separate subject from body with blank line
+# - Wrap body at 72 characters
+# - Use body to explain what and why vs. how
+#
+# Good examples:
+# feat(model): add ResNet50 image classification
+# fix(docker): resolve h5py compilation on ARM64
+# docs(readme): update setup instructions for Apple Silicon
+# refactor(api): extract auth logic into separate service
+#
+# Bad examples:
+# Fixed bug (no type/scope, past tense)
+# Update code (vague, no context)
+# WIP (not descriptive)
