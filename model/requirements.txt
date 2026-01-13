@@ -2,6 +2,8 @@
 Pillow==10.4.0
 pytest==8.3.4
 redis==5.2.0
+# h5py pre-compilado (evita necesidad de HDF5 libraries del sistema)
+h5py==3.8.0
 # TensorFlow 2.10+ es la primera versión compatible con Apple Silicon (ARM64)
 # Versión 2.13 es estable y compatible con el código existente
 tensorflow==2.13.0

@@ -128,21 +128,25 @@ ui
 
 **Test 4: Validar puertos**
 ```bash
-# Docker Compose v2 usa formato expandido YAML
-docker-compose config | grep -E "(published:|target:)" | grep -A 1 "published:"
+# Comando corregido: grep solo en la sección de ports (no volumes)
+docker-compose config | grep -A 5 "ports:" | grep -E "(published|target)" | grep -v "volumes" | head -15
 ```
 ✅ **Resultado esperado:** (Formato Docker Compose v2)
 ```
-published: "8000"    # API en host
-target: 5000         # API en container
---
-published: "5432"    # DB en host
-target: 5432         # DB en container
---
-published: "9090"    # UI en host
-target: 9090         # UI en container
+        published: "8000"
+        target: 5000
+        published: "5432"
+        target: 5432
+        published: "9090"
+        target: 9090
 ```
-**Equivalente a:** API=8000:5000, DB=5432:5432, UI=9090:9090
+
+**Interpretación:**
+- API: `8000` (host) → `5000` (container) = `8000:5000`
+- DB: `5432` (host) → `5432` (container) = `5432:5432`
+- UI: `9090` (host) → `9090` (container) = `9090:9090`
+
+⚠️ **Nota:** Si ves `target: /src/uploads` o paths de archivos, esos son volúmenes, no puertos. Ignóralos.
 
 **Nota sobre warnings:**
 ```
