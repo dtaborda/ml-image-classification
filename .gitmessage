@@ -1,0 +1,20 @@
+# [EPIC-X-TX] Título breve del cambio (max 50 caracteres)
+#
+# Descripción detallada del cambio (opcional):
+# - Qué se cambió y por qué
+# - Archivos principales modificados
+# - Consideraciones especiales
+#
+# Ejemplos:
+# [EPIC-0-T1] Crear red Docker shared_network
+# [EPIC-2-T3] Implementar función predict() con ResNet50
+# [EPIC-3-T5] Implementar endpoint POST /model/predict
+#
+# Formato:
+# - Primera línea: [EPIC-N-TM] Descripción breve
+# - Línea en blanco
+# - Descripción extendida (opcional)
+# - Línea en blanco
+# - Refs: EPIC-N-TM (referencia a la tarea)
+#
+# Refs: EPIC-X-TX
