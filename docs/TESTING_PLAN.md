@@ -80,10 +80,10 @@ pytest==8.3.4
 ```
 
 #### Criterios de Éxito:
-- [ ] Red shared_network creada
-- [ ] Archivos .env en su lugar
-- [ ] Variables de entorno configuradas
-- [ ] Requirements de UI actualizados
+- [✅] Red shared_network creada
+- [✅] Archivos .env en su lugar
+- [✅] Variables de entorno configuradas
+- [✅] Requirements de UI actualizados
 
 ---
 
@@ -128,19 +128,44 @@ ui
 
 **Test 4: Validar puertos**
 ```bash
-docker-compose config | grep -A 2 "ports:"
+# Docker Compose v2 usa formato expandido YAML
+docker-compose config | grep -E "(published:|target:)" | grep -A 1 "published:"
 ```
-✅ **Resultado esperado:**
-- API: 8000:5000
-- DB: 5432:5432
-- UI: 9090:9090
+✅ **Resultado esperado:** (Formato Docker Compose v2)
+```
+published: "8000"    # API en host
+target: 5000         # API en container
+--
+published: "5432"    # DB en host
+target: 5432         # DB en container
+--
+published: "9090"    # UI en host
+target: 9090         # UI en container
+```
+**Equivalente a:** API=8000:5000, DB=5432:5432, UI=9090:9090
+
+**Nota sobre warnings:**
+```
+WARN: the attribute `version` is obsolete
+```
+⚠️ Este warning es normal en Docker Compose v2 y puede ignorarse.
 
 **Test 5: Test build de todos los servicios**
 ```bash
 docker-compose build
 ```
 ✅ **Resultado esperado:** Todos los servicios construyen exitosamente
-⏱️ **Nota:** Puede tomar 5-10 minutos la primera vez
+
+⏱️ **Nota importante:** Puede tomar 5-10 minutos la primera vez:
+- Descarga TensorFlow 2.13.0 (~500MB en Apple Silicon)
+- Descarga base images de Python
+- Instala todas las dependencias
+
+⚠️ **Para Apple Silicon (M1/M2/M3):**
+Si ves errores relacionados con TensorFlow 2.8.0 o Pillow 11.0.0:
+- Esto ya fue corregido en commits recientes
+- Ver `docs/COMPATIBILITY_NOTES.md` para detalles
+- Las versiones actualizadas son compatibles (TF 2.13.0, Pillow 10.4.0)
 
 #### Criterios de Éxito:
 - [ ] Dockerfile.populate construye sin errores
@@ -1084,6 +1109,36 @@ lsof -i :8000
 # Matar proceso o cambiar puerto en docker-compose.yml
 ```
 
+### Problema: TensorFlow 2.8.0 no compatible con Apple Silicon
+```bash
+ERROR: Could not find a version that satisfies the requirement tensorflow==2.8.0
+```
+**Causa:** TensorFlow 2.8.0 no tiene binarios para arquitectura ARM64 (M1/M2/M3)
+
+**Solución:**
+```bash
+# Ya corregido en model/requirements.txt
+# Actualizado a tensorflow==2.13.0 que soporta Apple Silicon
+# Si ves este error, hacer git pull para obtener la versión actualizada
+git pull origin main
+docker-compose build model --no-cache
+```
+Ver `docs/COMPATIBILITY_NOTES.md` para más detalles.
+
+### Problema: Pillow 11.0.0 no compatible con Python 3.8
+```bash
+ERROR: Could not find a version that satisfies the requirement Pillow==11.0.0
+```
+**Causa:** Pillow 11.0+ requiere Python 3.9+, proyecto usa Python 3.8.13
+
+**Solución:**
+```bash
+# Ya corregido en model/requirements.txt y ui/requirements.txt
+# Actualizado a Pillow==10.4.0 (última versión compatible con Python 3.8)
+git pull origin main
+docker-compose build --no-cache
+```
+
 ### Problema: Modelo no descarga
 ```bash
 Error downloading ResNet50 weights
@@ -1093,6 +1148,9 @@ Error downloading ResNet50 weights
 # Verificar conexión internet
 # Reintentar build
 docker-compose build model --no-cache
+
+# Si persiste, verificar que TensorFlow instaló correctamente
+docker run --rm ml_service python -c "import tensorflow as tf; print(tf.__version__)"
 ```
 
 ### Problema: Redis connection refused
@@ -1148,8 +1206,42 @@ docker-compose logs model
 # Verificar CPU/Memory
 docker stats
 
-# Considerar reducir tamaño de imagen
-# o aumentar timeout en settings
+# En Apple Silicon, TensorFlow 2.13 es optimizado pero puede ser lento
+# la primera predicción (carga del modelo)
+
+# Considerar:
+# 1. Aumentar timeout en api/app/model/services.py
+# 2. Implementar ÉPICA 7 (batch processing) para mejor throughput
+# 3. Escalar servicio: docker-compose up --scale model=2
+```
+
+### Problema: Warning sobre version en docker-compose
+```bash
+WARN: the attribute `version` is obsolete
+```
+**Causa:** Docker Compose v2 deprecó el campo `version:`
+
+**Solución:**
+```bash
+# Este es solo un warning, NO afecta funcionalidad
+# Puede ignorarse de forma segura
+# Si deseas eliminarlo, quitar línea 1 de docker-compose.yml:
+# version: "3.2"  <- Eliminar esta línea
+```
+
+### Problema: Puertos en formato diferente al esperado
+```bash
+# Ves: published: "8000" / target: 5000
+# En lugar de: 8000:5000
+```
+**Causa:** Docker Compose v2 usa formato YAML expandido
+
+**Solución:**
+```bash
+# Esto es correcto y equivalente:
+# published: "8000" + target: 5000 = 8000:5000
+# No requiere corrección
+# Ver docs/COMPATIBILITY_NOTES.md sección "Verificación de Puertos"
 ```
 
 ---
