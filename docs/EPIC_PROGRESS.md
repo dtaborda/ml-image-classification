@@ -63,14 +63,14 @@
 
 ## ✅ ÉPICA 1: Infraestructura Docker (COMPLETADA)
 
-**Branch:** `feature/epic-1-infrastructure`  
+**Git Tag:** `epic-1-complete`  
 **Fecha:** 2026-01-13  
-**Tiempo invertido:** ~15 minutos
+**Tiempo invertido:** ~45 minutos (incluyendo troubleshooting)
 
 ### Tareas Completadas:
 
 #### [EPIC-1-T1] ✅ Implementar Dockerfile.populate
-- **Commit:** `86f52d2`
+- **Commit:** `86f52d2` → `build(api): implement Dockerfile.populate for DB initialization`
 - **Archivo:** `api/Dockerfile.populate`
 - **Implementación:**
   - Base image: python:3.8.13
@@ -81,7 +81,7 @@
 - **Validación:** Build exitoso ✅
 
 #### [EPIC-1-T2] ✅ Validar configuración docker-compose
-- **Commit:** `fa2f073`
+- **Commit:** `fa2f073` → `build(docker): validate docker-compose configuration`
 - **Archivos:** `docker-compose.yml`, `api/docker-compose.yml`
 - **Validaciones:**
   - ✅ YAML válido sin errores
@@ -101,28 +101,33 @@
 ### Correcciones Realizadas (Compatibilidad Apple Silicon):
 
 #### [FIX] ✅ TensorFlow incompatible con ARM64
-- **Commit:** `22b1840`
+- **Commit:** `6bbf6c6` → `fix(deps): upgrade TensorFlow to 2.13.0 for ARM64 compatibility`
 - **Problema:** tensorflow==2.8.0 no disponible para arquitectura ARM64
 - **Solución:** Actualizado a tensorflow==2.13.0 en model/requirements.txt
 - **Nota:** API idéntica entre versiones, código 100% compatible
 
 #### [FIX] ✅ Pillow incompatible con Python 3.8
-- **Commit:** Anterior (UI requirements update)
+- **Commit:** `0ed05de` → `fix(deps): downgrade Pillow to 10.4.0 for Python 3.8`
 - **Problema:** Pillow==11.0.0 requiere Python 3.9+
 - **Solución:** Actualizado a Pillow==10.4.0 (última para Python 3.8)
 - **Archivos:** model/requirements.txt, ui/requirements.txt
 
 #### [FIX] ✅ h5py error de compilación
-- **Commit:** `22b1840`
+- **Commit:** `22b1840` → `fix(docker): add h5py pre-compiled wheel for ARM64`
 - **Problema:** h5py intentando compilar desde código fuente, requiriendo librerías HDF5
 - **Solución:** Añadido h5py==3.8.0 antes de TensorFlow para usar wheel pre-compilado
 - **Archivo:** model/requirements.txt
 
 #### [FIX] ✅ Test 4 grep command
-- **Commit:** `22b1840`
+- **Commit:** `eee61f2` → `docs(tests): correct Test 4 grep command for port mappings`
 - **Problema:** grep capturaba volumes además de ports
 - **Solución:** Filtro mejorado para mostrar solo port mappings
 - **Archivo:** docs/TESTING_PLAN.md
+
+#### [DOCS] ✅ Documentación de fixes
+- **Commit:** `4c6354b` → `docs(epic-1): document compatibility fixes and testing`
+- **Contenido:** Todos los fixes documentados en EPIC_PROGRESS.md
+- **Archivos:** docs/EPIC_PROGRESS.md
 
 ### Notas:
 - Dockerfile.populate sigue mismo patrón que api/Dockerfile
@@ -166,4 +171,51 @@
 
 ---
 
-**Progreso Total:** 5/40 tareas (12.5%)
+## 📝 Convención de Commits
+
+**A partir de ahora:** Se utiliza **Conventional Commits 1.0.0**
+
+### Formato
+```
+<type>(<scope>): <subject>
+
+[optional body]
+
+[optional footer]
+```
+
+### Ejemplos de la nueva convención:
+```
+feat(api): add user authentication endpoint
+fix(docker): resolve h5py compilation on ARM64
+docs(readme): update setup instructions
+test(model): add preprocessing unit tests
+```
+
+### Comando `/commit`
+Usa el comando personalizado para generar commits semánticos:
+```bash
+/commit
+/commit --epic 2
+/commit --breaking
+```
+
+Ver documentación completa: [docs/COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)
+
+---
+
+## 📚 Mejoras Documentales (Sesión 2026-01-13)
+
+### Nuevos Documentos:
+1. **[COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)** - Convención Conventional Commits
+2. **[COMPATIBILITY_NOTES.md](COMPATIBILITY_NOTES.md)** - Notas de compatibilidad Apple Silicon
+3. **AGENTS.md actualizado** - Guías de commit extendidas + comando `/commit`
+
+### Commits relacionados:
+- `605c557` → `docs: add Conventional Commits standard and /commit command`
+- Tag: `epic-1-complete` - Marca la finalización completa de ÉPICA 1
+
+---
+
+**Progreso Total:** 5/40 tareas (12.5%)  
+**Siguiente:** ÉPICA 2 - Servicio ML (5 tareas)
