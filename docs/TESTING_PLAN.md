@@ -22,6 +22,35 @@ Este documento contiene la guía completa de testing manual y automático para c
 - ✅ Cliente HTTP: Postman/Insomnia o curl (opcional)
 - ✅ Editor de texto
 
+### 📝 Notas Importantes:
+
+**Nombres de Contenedores (Docker Compose v2):**
+Docker Compose v2 genera nombres con el formato: `<directorio>-<servicio>-<número>`
+
+Ejemplos:
+- `redis` → `assignment-redis-1`
+- `ml_service` → `ml_service` (permanece igual)
+- `db` → `assignment-db-1`
+
+**Encontrar nombres dinámicamente:**
+```bash
+# Listar contenedores del proyecto
+docker ps --filter "name=assignment"
+
+# Encontrar contenedor específico
+docker ps --filter "name=redis" --format "{{.Names}}"
+```
+
+**TTY Issues:**
+Si ves el error "the input device is not a TTY", omite las flags `-it`:
+```bash
+# ❌ Puede fallar en algunos entornos
+docker exec -it redis redis-cli ping
+
+# ✅ Funciona siempre
+docker exec assignment-redis-1 redis-cli ping
+```
+
 ---
 
 ## Testing por Épica
@@ -211,12 +240,19 @@ docker-compose logs model
 
 **Test 3: Verificar conexión Redis**
 ```bash
-docker exec -it redis redis-cli ping
+# Docker Compose v2 genera nombres como: <directorio>-<servicio>-<número>
+# Método 1: Usar el nombre completo
+docker exec assignment-redis-1 redis-cli ping
+
+# Método 2: Encontrar el nombre dinámicamente
+docker ps --filter "name=redis" --format "{{.Names}}" | xargs -I {} docker exec {} redis-cli ping
 ```
 ✅ **Resultado esperado:**
 ```
 PONG
 ```
+
+**Nota:** Si el comando con `-it` falla con "the input device is not a TTY", omite esas flags.
 
 **Test 4: Test interactivo de predicción (Opcional)**
 ```bash
@@ -239,9 +275,13 @@ docker exec -it ml_service python
 
 **Test 5: Test de comunicación Redis**
 ```bash
-# Abrir redis-cli
-docker exec -it redis redis-cli
+# Opción A: Comandos directos (sin TTY)
+docker exec assignment-redis-1 redis-cli LPUSH service_queue '{"id":"test123","image_name":"dog.jpeg"}'
+sleep 3
+docker exec assignment-redis-1 redis-cli GET test123
 
+# Opción B: Modo interactivo (si tu terminal lo soporta)
+docker exec -it assignment-redis-1 redis-cli
 # Dentro de redis-cli:
 127.0.0.1:6379> LPUSH service_queue '{"id":"test123","image_name":"dog.jpeg"}'
 127.0.0.1:6379> GET test123
