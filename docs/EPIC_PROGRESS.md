@@ -95,11 +95,41 @@
 - ✅ Test 1: Dockerfile.populate construye correctamente
 - ✅ Test 2: docker-compose config sin errores
 - ✅ Test 3: Todos los servicios con shared_network
+- ✅ Test 4: Puertos mapeados correctamente (8000:5000, 5432:5432, 9090:9090)
+- ✅ Test 5: docker-compose build completo exitoso (todos los servicios)
+
+### Correcciones Realizadas (Compatibilidad Apple Silicon):
+
+#### [FIX] ✅ TensorFlow incompatible con ARM64
+- **Commit:** `22b1840`
+- **Problema:** tensorflow==2.8.0 no disponible para arquitectura ARM64
+- **Solución:** Actualizado a tensorflow==2.13.0 en model/requirements.txt
+- **Nota:** API idéntica entre versiones, código 100% compatible
+
+#### [FIX] ✅ Pillow incompatible con Python 3.8
+- **Commit:** Anterior (UI requirements update)
+- **Problema:** Pillow==11.0.0 requiere Python 3.9+
+- **Solución:** Actualizado a Pillow==10.4.0 (última para Python 3.8)
+- **Archivos:** model/requirements.txt, ui/requirements.txt
+
+#### [FIX] ✅ h5py error de compilación
+- **Commit:** `22b1840`
+- **Problema:** h5py intentando compilar desde código fuente, requiriendo librerías HDF5
+- **Solución:** Añadido h5py==3.8.0 antes de TensorFlow para usar wheel pre-compilado
+- **Archivo:** model/requirements.txt
+
+#### [FIX] ✅ Test 4 grep command
+- **Commit:** `22b1840`
+- **Problema:** grep capturaba volumes además de ports
+- **Solución:** Filtro mejorado para mostrar solo port mappings
+- **Archivo:** docs/TESTING_PLAN.md
 
 ### Notas:
 - Dockerfile.populate sigue mismo patrón que api/Dockerfile
 - Configuración docker-compose validada y lista para uso
 - Red externa shared_network debe existir antes de docker-compose up
+- Todas las dependencias ahora compatibles con Apple Silicon (ARM64) + Python 3.8
+- Build completo exitoso: model (~54s), api (cached), ui (~35s)
 
 ---
 
