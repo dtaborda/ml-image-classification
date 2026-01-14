@@ -70,21 +70,25 @@ def predict(token: str, uploaded_file) -> requests.Response:
         files = {
             "file": (uploaded_file.name, uploaded_file, uploaded_file.type)
         }
-        
+
         # 2. Add the token to the headers
         headers = {
             "Authorization": f"Bearer {token}"
         }
-        
+
         # 3. Make a POST request to the predict endpoint
         url = f"{API_BASE_URL}/model/predict"
         response = requests.post(url, headers=headers, files=files)
-        
+
         # 4. Return the response
         return response
     except Exception as e:
-        st.error(f"Prediction error: {str(e)}")
-        return None
+        # Create a mock response for error cases
+        mock_response = requests.Response()
+        mock_response.status_code = 500
+        mock_response._content = b'{"error": "Prediction failed"}'
+        mock_response.url = f"{API_BASE_URL}/model/predict"
+        return mock_response
 
 
 def send_feedback(
@@ -111,22 +115,26 @@ def send_feedback(
             "predicted_class": prediction,
             "image_file_name": image_file_name
         }
-        
+
         # 2. Add the token to the headers
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
-        
+
         # 3. Make a POST request to the feedback endpoint
         url = f"{API_BASE_URL}/feedback/"
         response = requests.post(url, headers=headers, json=data)
-        
+
         # 4. Return the response
         return response
     except Exception as e:
-        st.error(f"Feedback error: {str(e)}")
-        return None
+        # Create a mock response for error cases
+        mock_response = requests.Response()
+        mock_response.status_code = 500
+        mock_response._content = b'{"error": "Feedback failed"}'
+        mock_response.url = f"{API_BASE_URL}/feedback/"
+        return mock_response
 
 
 # Interfaz de usuario

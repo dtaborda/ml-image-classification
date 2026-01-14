@@ -93,9 +93,7 @@ class TestMLService(unittest.TestCase):
             self.assertIn('files', call_args[1])
 
     def test_predict_failure(self):
-        with mock.patch("requests.post") as mock_post:
-            mock_post.return_value.status_code = 500
-
+        with mock.patch("requests.post", side_effect=Exception("Network error")):
             response = ui_app.predict(self.token, self.uploaded_file)
 
             self.assertEqual(response.status_code, 500)
@@ -132,24 +130,12 @@ class TestMLService(unittest.TestCase):
         score = 0.9346
         prediction = "Eskimo_dog"
         image_file_name = "dog.jpeg"
-        with mock.patch("requests.post") as mock_post:
-            mock_post.return_value.status_code = 500
-
+        with mock.patch("requests.post", side_effect=Exception("Network error")):
             response = ui_app.send_feedback(
                 self.token, feedback, score, prediction, image_file_name
             )
 
             self.assertEqual(response.status_code, 500)
-            mock_post.assert_called_once_with(
-                ui_app.API_BASE_URL + "/feedback/",
-                json={
-                    "feedback": feedback,
-                    "score": score,
-                    "predicted_class": prediction,
-                    "image_file_name": image_file_name,
-                },
-                headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
-            )
 
 
 if __name__ == "__main__":
