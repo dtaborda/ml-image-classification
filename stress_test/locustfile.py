@@ -27,7 +27,7 @@ def login(username: str, password: str) -> Optional[str]:
         "Content-Type": "application/x-www-form-urlencoded",
     }
     data = {
-        "grant_type": "",
+        "grant_type": "password",
         "username": username,
         "password": password,
         "scope": "",
