@@ -307,13 +307,22 @@ docker-compose logs model | grep -i "model"
 cd model
 docker build -t model_test --progress=plain --target test .
 ```
+
+**⚠️ Si falla con "TLS handshake timeout" (problema de red con Docker Hub):**
+```bash
+# Workaround: Ejecutar tests en el contenedor corriendo
+docker exec ml_service pytest -v /src/tests
+```
+
 ✅ **Resultado esperado:**
 ```
 ============================= test session starts ==============================
 tests/test_model.py::test_predict PASSED                                [100%]
 
-============================== 1 passed in 5.24s ===============================
+============================== 1 passed in 4.86s ===============================
 ```
+
+**Nota:** El tiempo puede variar (4-18 segundos) dependiendo de si es la primera predicción.
 
 #### Criterios de Éxito:
 - [ ] Contenedores corriendo estables
@@ -1131,6 +1140,70 @@ echo "\n✨ ¡Todos los tests pasaron!"
 ---
 
 ## Troubleshooting
+
+### Problema: TLS handshake timeout con Docker Hub
+```bash
+ERROR: failed to do request: Head "https://registry-1.docker.io/...": net/http: TLS handshake timeout
+```
+**Causa:** Problema de red temporal o timeout al conectarse a Docker Hub.
+
+**Solución 1: Reintentar más tarde**
+```bash
+# Esperar unos minutos y reintentar
+docker build -t model_test --target test .
+```
+
+**Solución 2: Usar contenedor corriendo (Recomendado)**
+```bash
+# Si ya construiste la imagen con docker-compose build
+docker exec ml_service pytest -v /src/tests
+```
+
+**Solución 3: Aumentar timeout de Docker**
+```bash
+# Editar Docker Desktop → Preferences → Docker Engine
+# Agregar en el JSON:
+{
+  "max-download-attempts": 5,
+  "max-concurrent-downloads": 1
+}
+# Luego restart Docker Desktop
+```
+
+**Solución 4: Usar proxy/VPN si el problema persiste**
+
+### Problema: Contenedor no existe (Docker Compose v2)
+```bash
+Error: No such container: redis
+Error: No such container: model
+```
+**Causa:** Docker Compose v2 genera nombres como `<directorio>-<servicio>-<número>`
+
+**Solución:**
+```bash
+# Encontrar el nombre real
+docker ps --filter "name=redis" --format "{{.Names}}"
+
+# Usar el nombre completo
+docker exec assignment-redis-1 redis-cli ping
+
+# O encontrar dinámicamente
+docker ps --filter "name=redis" --format "{{.Names}}" | xargs -I {} docker exec {} redis-cli ping
+```
+
+### Problema: Error TTY "the input device is not a TTY"
+```bash
+Error: the input device is not a TTY
+```
+**Causa:** Algunos entornos no soportan modo interactivo (-it).
+
+**Solución:**
+```bash
+# Quitar flags -it
+docker exec assignment-redis-1 redis-cli ping
+# En lugar de:
+docker exec -it assignment-redis-1 redis-cli ping
+```
 
 ### Problema: Red Docker no existe
 ```bash
