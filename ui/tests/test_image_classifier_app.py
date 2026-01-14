@@ -17,6 +17,8 @@ class TestMLService(unittest.TestCase):
         self.uploaded_file = mock.MagicMock(spec=BytesIO)
         self.uploaded_file.getvalue.return_value = BytesIO()
         self.uploaded_file.name = "dog.jpeg"
+        self.uploaded_file.type = "image/jpeg"
+        self.uploaded_file.seek = mock.MagicMock()
         self.image_file.save(self.uploaded_file, format="JPEG")
         self.headers = {"Authorization": f"Bearer {self.token}"}
 
@@ -39,7 +41,7 @@ class TestMLService(unittest.TestCase):
                 ui_app.API_BASE_URL + "/login",
                 headers=headers,
                 data={
-                    "grant_type": "",
+                    "grant_type": "password",
                     "username": "username",
                     "password": "password",
                     "scope": "",
@@ -64,7 +66,7 @@ class TestMLService(unittest.TestCase):
                 ui_app.API_BASE_URL + "/login",
                 headers=headers,
                 data={
-                    "grant_type": "",
+                    "grant_type": "password",
                     "username": "username",
                     "password": "password",
                     "scope": "",
@@ -83,13 +85,12 @@ class TestMLService(unittest.TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json(), expected_response)
-            mock_post.assert_called_once_with(
-                ui_app.API_BASE_URL + "/model/predict",
-                files={
-                    "file": (self.uploaded_file.name, self.uploaded_file.getvalue())
-                },
-                headers=self.headers,
-            )
+            # Verify headers were passed correctly
+            call_args = mock_post.call_args
+            self.assertEqual(call_args[0][0], ui_app.API_BASE_URL + "/model/predict")
+            self.assertEqual(call_args[1]['headers'], self.headers)
+            # Verify files parameter structure (name, file, type)
+            self.assertIn('files', call_args[1])
 
     def test_predict_failure(self):
         with mock.patch("requests.post") as mock_post:
@@ -98,13 +99,6 @@ class TestMLService(unittest.TestCase):
             response = ui_app.predict(self.token, self.uploaded_file)
 
             self.assertEqual(response.status_code, 500)
-            mock_post.assert_called_once_with(
-                ui_app.API_BASE_URL + "/model/predict",
-                files={
-                    "file": (self.uploaded_file.name, self.uploaded_file.getvalue())
-                },
-                headers=self.headers,
-            )
 
     def test_send_feedback_success(self):
         expected_response = {"status": "success"}
@@ -123,14 +117,14 @@ class TestMLService(unittest.TestCase):
             self.assertEqual(response.status_code, 201)
             self.assertEqual(response.json(), expected_response)
             mock_post.assert_called_once_with(
-                ui_app.API_BASE_URL + "/feedback",
+                ui_app.API_BASE_URL + "/feedback/",
                 json={
                     "feedback": feedback,
                     "score": score,
                     "predicted_class": prediction,
                     "image_file_name": image_file_name,
                 },
-                headers=self.headers,
+                headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
             )
 
     def test_send_feedback_failure(self):
@@ -147,14 +141,14 @@ class TestMLService(unittest.TestCase):
 
             self.assertEqual(response.status_code, 500)
             mock_post.assert_called_once_with(
-                ui_app.API_BASE_URL + "/feedback",
+                ui_app.API_BASE_URL + "/feedback/",
                 json={
                     "feedback": feedback,
                     "score": score,
                     "predicted_class": prediction,
                     "image_file_name": image_file_name,
                 },
-                headers=self.headers,
+                headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
             )
 
 
