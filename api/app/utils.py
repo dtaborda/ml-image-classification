@@ -2,6 +2,9 @@ import hashlib
 import os
 
 
+ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif'}
+
+
 def allowed_file(filename):
     """
     Checks if the format for the file received is acceptable. For this
@@ -18,11 +21,15 @@ def allowed_file(filename):
     bool
         True if the file is an image, False otherwise.
     """
-    # TODO: Implement the allowed_file function
-    # Current implementation will return True for any file
-    # Check if the file extension of the filename received is in the set of allowed extensions (".png", ".jpg", ".jpeg", ".gif")
-
-    return True
+    # Check if filename exists and has a dot
+    if not filename or '.' not in filename:
+        return False
+    
+    # Extract file extension (case insensitive)
+    file_ext = os.path.splitext(filename)[1].lower()
+    
+    # Check if extension is in allowed set
+    return file_ext in ALLOWED_EXTENSIONS
 
 
 async def get_file_hash(file):
@@ -41,13 +48,14 @@ async def get_file_hash(file):
     str
         New filename based in md5 file hash.
     """
-    # TODO: Implement the get_file_hash function
-    # Current implementation will return the original file name.
-
-    # Read file content and generate md5 hash (Check: https://docs.python.org/3/library/hashlib.html#hashlib.md5)
-
-    # Return file pointer to the beginning
-
+    # Read file content and generate md5 hash
+    file_content = await file.read()
+    file_hash = hashlib.md5(file_content).hexdigest()
+    
+    # Return file pointer to the beginning for reuse
+    await file.seek(0)
+    
     # Add original file extension
-
-    return file.filename
+    file_extension = os.path.splitext(file.filename)[1].lower()
+    
+    return f"{file_hash}{file_extension}"
