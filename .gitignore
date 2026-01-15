@@ -138,6 +138,10 @@ dmypy.json
 #vscode stuff
 .history/
 
+# Project specific exclusions
+docs/
+AGENTS.md
+
 db_data/*
 !db_data/.gitkeep
 
