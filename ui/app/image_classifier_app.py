@@ -64,10 +64,8 @@ def predict(token: str, uploaded_file) -> requests.Response:
         requests.Response: response from the API
     """
     # 1. Create a dictionary with the file data
-    # Reset file pointer to beginning
-    uploaded_file.seek(0)
     files = {
-        "file": (uploaded_file.name, uploaded_file, uploaded_file.type)
+        "file": (uploaded_file.name, uploaded_file.getvalue())
     }
 
     # 2. Add the token to the headers

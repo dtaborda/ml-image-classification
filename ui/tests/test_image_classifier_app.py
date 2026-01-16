@@ -17,8 +17,6 @@ class TestMLService(unittest.TestCase):
         self.uploaded_file = mock.MagicMock(spec=BytesIO)
         self.uploaded_file.getvalue.return_value = BytesIO()
         self.uploaded_file.name = "dog.jpeg"
-        self.uploaded_file.type = "image/jpeg"
-        self.uploaded_file.seek = mock.MagicMock()
         self.image_file.save(self.uploaded_file, format="JPEG")
         self.headers = {"Authorization": f"Bearer {self.token}"}
 
@@ -85,15 +83,18 @@ class TestMLService(unittest.TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json(), expected_response)
-            # Verify headers were passed correctly
-            call_args = mock_post.call_args
-            self.assertEqual(call_args[0][0], ui_app.API_BASE_URL + "/model/predict")
-            self.assertEqual(call_args[1]['headers'], self.headers)
-            # Verify files parameter structure (name, file, type)
-            self.assertIn('files', call_args[1])
+            mock_post.assert_called_once_with(
+                ui_app.API_BASE_URL + "/model/predict",
+                files={
+                    "file": (self.uploaded_file.name, self.uploaded_file.getvalue())
+                },
+                headers=self.headers,
+            )
 
     def test_predict_failure(self):
-        with mock.patch("requests.post", side_effect=Exception("Network error")):
+        with mock.patch("requests.post") as mock_post:
+            mock_post.return_value.status_code = 500
+
             response = ui_app.predict(self.token, self.uploaded_file)
 
             self.assertEqual(response.status_code, 500)
