@@ -41,7 +41,7 @@ class TestMLService(unittest.TestCase):
                 ui_app.API_BASE_URL + "/login",
                 headers=headers,
                 data={
-                    "grant_type": "password",
+                    "grant_type": "",
                     "username": "username",
                     "password": "password",
                     "scope": "",
@@ -66,7 +66,7 @@ class TestMLService(unittest.TestCase):
                 ui_app.API_BASE_URL + "/login",
                 headers=headers,
                 data={
-                    "grant_type": "password",
+                    "grant_type": "",
                     "username": "username",
                     "password": "password",
                     "scope": "",
@@ -115,14 +115,14 @@ class TestMLService(unittest.TestCase):
             self.assertEqual(response.status_code, 201)
             self.assertEqual(response.json(), expected_response)
             mock_post.assert_called_once_with(
-                ui_app.API_BASE_URL + "/feedback/",
+                ui_app.API_BASE_URL + "/feedback",
                 json={
                     "feedback": feedback,
                     "score": score,
                     "predicted_class": prediction,
                     "image_file_name": image_file_name,
                 },
-                headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
+                headers={"Authorization": f"Bearer {self.token}"},
             )
 
     def test_send_feedback_failure(self):
