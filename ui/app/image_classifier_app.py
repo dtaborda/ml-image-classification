@@ -63,30 +63,28 @@ def predict(token: str, uploaded_file) -> requests.Response:
     Returns:
         requests.Response: response from the API
     """
+    # 1. Create a dictionary with the file data
+    # Reset file pointer to beginning
+    uploaded_file.seek(0)
+    files = {
+        "file": (uploaded_file.name, uploaded_file, uploaded_file.type)
+    }
+
+    # 2. Add the token to the headers
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    # 3. Make a POST request to the predict endpoint
+    url = f"{API_BASE_URL}/model/predict"
     try:
-        # 1. Create a dictionary with the file data
-        # Reset file pointer to beginning
-        uploaded_file.seek(0)
-        files = {
-            "file": (uploaded_file.name, uploaded_file, uploaded_file.type)
-        }
-
-        # 2. Add the token to the headers
-        headers = {
-            "Authorization": f"Bearer {token}"
-        }
-
-        # 3. Make a POST request to the predict endpoint
-        url = f"{API_BASE_URL}/model/predict"
         response = requests.post(url, headers=headers, files=files)
-
-        # 4. Return the response
         return response
     except Exception:
-        # Create a simple mock response for test compatibility
-        mock_response = requests.Response()
-        mock_response.status_code = 500
-        return mock_response
+        # Create a mock response for error cases
+        error_response = requests.Response()
+        error_response.status_code = 500
+        return error_response
 
 
 def send_feedback(
